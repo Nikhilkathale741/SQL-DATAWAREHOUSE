@@ -31,165 +31,53 @@ EXEC bronze.load_bronze;
 
 ============================================================
 */
-
-CREATE OR ALTER PROCEDURE bronze.load_bronze
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE 
-        @start_time DATETIME,
-        @end_time   DATETIME,
-        @duration   INT;
-
-    BEGIN TRY
-        PRINT '=====================================================';
-        PRINT 'STARTING BRONZE LAYER LOAD';
-        PRINT '=====================================================';
-
-        /* =====================================================
-           LOADING CRM TABLES
-        ===================================================== */
-        PRINT 'LOADING CRM TABLES';
-        PRINT '-----------------------------------------------------';
-
-        /* CRM CUSTOMER INFO */
-        SET @start_time = GETDATE();
-
-        TRUNCATE TABLE bronze.crm_cust_info;
-
-        BULK INSERT bronze.crm_cust_info
-        FROM 'D:\RESUME - ITM\baher\PAPU MOM\DATA WAREHOUSE END TO END\datasets\source_crm\cust_info.csv'
-        WITH (
-            FIRSTROW = 2,
-            FIELDTERMINATOR = ',',
-            TABLOCK
-        );
-
-        SET @end_time = GETDATE();
-        SET @duration = DATEDIFF(SECOND, @start_time, @end_time);
-
-        PRINT 'crm_cust_info loaded in ' + CAST(@duration AS NVARCHAR(10)) + ' seconds';
-        SELECT COUNT(*) AS record_count FROM bronze.crm_cust_info;
+create table bronze.crm_cust_info (
+cst_id int,
+cst_key nvarchar(50),
+cst_firstname nvarchar(50),
+cst_lastname nvarchar(50),
+cst_material_status nvarchar(50),
+cst_gndr nvarchar(50),
+cst_create_date Date
+);
 
 
-        /* CRM PRODUCT INFO */
-        SET @start_time = GETDATE();
+create table bronze.crm_prd_info(
+prd_id int,
+prd_key nvarchar(50),
+prd_nm nvarchar(50),
+prd_cost int ,
+prd_line nvarchar(50),
+prd_start_dt Datetime,
+prd_end_dt Datetime
+);
 
-        TRUNCATE TABLE bronze.crm_prd_info;
+Create Table bronze.crm_sales_details(
+sls_ord_num nvarchar(50),
+sls_prd_key nvarchar(50),
+sls_cust_id INT,
+sls_order_dt INT,
+sls_ship_dt INT,
+sls_due_dt INT,
+sls_sales INT,
+sls_quantity INT,
+sls_price INT
+);
 
-        BULK INSERT bronze.crm_prd_info
-        FROM 'D:\RESUME - ITM\baher\PAPU MOM\DATA WAREHOUSE END TO END\datasets\source_crm\prd_info.csv'
-        WITH (
-            FIRSTROW = 2,
-            FIELDTERMINATOR = ',',
-            TABLOCK
-        );
+Create Table bronze.erp_loc_a101(
+cid nvarchar(50),
+cntry nvarchar(50),
+);
 
-        SET @end_time = GETDATE();
-        SET @duration = DATEDIFF(SECOND, @start_time, @end_time);
+create table bronze.erp_cust_az12(
+cid nvarchar(50),
+bdate Date,
+gen nvarchar(50),
+);
 
-        PRINT 'crm_prd_info loaded in ' + CAST(@duration AS NVARCHAR(10)) + ' seconds';
-        SELECT COUNT(*) AS record_count FROM bronze.crm_prd_info;
-
-
-        /* CRM SALES DETAILS */
-        SET @start_time = GETDATE();
-
-        TRUNCATE TABLE bronze.crm_sales_details;
-
-        BULK INSERT bronze.crm_sales_details
-        FROM 'D:\RESUME - ITM\baher\PAPU MOM\DATA WAREHOUSE END TO END\datasets\source_crm\sales_details.csv'
-        WITH (
-            FIRSTROW = 2,
-            FIELDTERMINATOR = ',',
-            TABLOCK
-        );
-
-        SET @end_time = GETDATE();
-        SET @duration = DATEDIFF(SECOND, @start_time, @end_time);
-
-        PRINT 'crm_sales_details loaded in ' + CAST(@duration AS NVARCHAR(10)) + ' seconds';
-        SELECT COUNT(*) AS record_count FROM bronze.crm_sales_details;
-
-
-        /* =====================================================
-           LOADING ERP TABLES
-        ===================================================== */
-        PRINT '-----------------------------------------------------';
-        PRINT 'LOADING ERP TABLES';
-        PRINT '-----------------------------------------------------';
-
-        /* ERP CUSTOMER */
-        SET @start_time = GETDATE();
-
-        TRUNCATE TABLE bronze.erp_cust_az12;
-
-        BULK INSERT bronze.erp_cust_az12
-        FROM 'D:\RESUME - ITM\baher\PAPU MOM\DATA WAREHOUSE END TO END\datasets\source_erp\CUST_AZ12.csv'
-        WITH (
-            FIRSTROW = 2,
-            FIELDTERMINATOR = ',',
-            TABLOCK
-        );
-
-        SET @end_time = GETDATE();
-        SET @duration = DATEDIFF(SECOND, @start_time, @end_time);
-
-        PRINT 'erp_cust_az12 loaded in ' + CAST(@duration AS NVARCHAR(10)) + ' seconds';
-        SELECT COUNT(*) AS record_count FROM bronze.erp_cust_az12;
-
-
-        /* ERP LOCATION */
-        SET @start_time = GETDATE();
-
-        TRUNCATE TABLE bronze.erp_loc_a101;
-
-        BULK INSERT bronze.erp_loc_a101
-        FROM 'D:\RESUME - ITM\baher\PAPU MOM\DATA WAREHOUSE END TO END\datasets\source_erp\LOC_A101.csv'
-        WITH (
-            FIRSTROW = 2,
-            FIELDTERMINATOR = ',',
-            TABLOCK
-        );
-
-        SET @end_time = GETDATE();
-        SET @duration = DATEDIFF(SECOND, @start_time, @end_time);
-
-        PRINT 'erp_loc_a101 loaded in ' + CAST(@duration AS NVARCHAR(10)) + ' seconds';
-        SELECT COUNT(*) AS record_count FROM bronze.erp_loc_a101;
-
-
-        /* ERP PRODUCT CATEGORY */
-        SET @start_time = GETDATE();
-
-        TRUNCATE TABLE bronze.erp_px_cat_g1v2;
-
-        BULK INSERT bronze.erp_px_cat_g1v2
-        FROM 'D:\RESUME - ITM\baher\PAPU MOM\DATA WAREHOUSE END TO END\datasets\source_erp\PX_CAT_G1V2.csv'
-        WITH (
-            FIRSTROW = 2,
-            FIELDTERMINATOR = ',',
-            TABLOCK
-        );
-
-        SET @end_time = GETDATE();
-        SET @duration = DATEDIFF(SECOND, @start_time, @end_time);
-
-        PRINT 'erp_px_cat_g1v2 loaded in ' + CAST(@duration AS NVARCHAR(10)) + ' seconds';
-        SELECT COUNT(*) AS record_count FROM bronze.erp_px_cat_g1v2;
-
-
-        PRINT '=====================================================';
-        PRINT 'BRONZE LAYER LOAD COMPLETED SUCCESSFULLY';
-        PRINT '=====================================================';
-
-    END TRY
-    BEGIN CATCH
-        PRINT '=====================================================';
-        PRINT 'ERROR OCCURRED IN BRONZE LOAD';
-        PRINT ERROR_MESSAGE();
-        PRINT '=====================================================';
-    END CATCH
-END;
-GO
+create table bronze.erp_px_cat_g1v2(
+id nvarchar(50),
+cat nvarchar(50),
+subcat  nvarchar(50),
+maintance  nvarchar(50),
+);
