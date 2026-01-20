@@ -41,7 +41,7 @@ BEGIN
 			cst_key, 
 			cst_firstname, 
 			cst_lastname, 
-			cst_marital_status, 
+			cst_material_status, 
 			cst_gndr,
 			cst_create_date
 		)
@@ -51,8 +51,8 @@ BEGIN
 			TRIM(cst_firstname) AS cst_firstname,
 			TRIM(cst_lastname) AS cst_lastname,
 			CASE 
-				WHEN UPPER(TRIM(cst_marital_status)) = 'S' THEN 'Single'
-				WHEN UPPER(TRIM(cst_marital_status)) = 'M' THEN 'Married'
+				WHEN UPPER(TRIM(cst_material_status)) = 'S' THEN 'Single'
+				WHEN UPPER(TRIM(cst_material_status)) = 'M' THEN 'Married'
 				ELSE 'n/a'
 			END AS cst_marital_status, -- Normalize marital status values to readable format
 			CASE 
@@ -223,13 +223,13 @@ BEGIN
 			id,
 			cat,
 			subcat,
-			maintenance
+			maintance
 		)
 		SELECT
 			id,
 			cat,
 			subcat,
-			maintenance
+			maintance
 		FROM bronze.erp_px_cat_g1v2;
 		SET @end_time = GETDATE();
 		PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
@@ -251,3 +251,6 @@ BEGIN
 		PRINT '=========================================='
 	END CATCH
 END
+
+
+exec silver.load_silver;
